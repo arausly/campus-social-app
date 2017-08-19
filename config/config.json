@@ -1,0 +1,12 @@
+{
+	"development":{
+		"PORT":4400,
+		"MONGODB_URI":"mongodb://localhost:27017/campusChat",
+	    "JWT_SECRET":"ghjerrwlnd"
+	},
+	"test":{
+		"PORT":4400,
+		"MONGODB_URI":"mongodb://localhost:27017/campusTest",
+		 "JWT_SECRET":"ueekjerjrebw3"
+	}
+}
