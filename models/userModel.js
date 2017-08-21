@@ -5,19 +5,12 @@ const {
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-
+const async  =  require('async');
 const userSchema = new Schema({
 	name: String,
 	email: {
 		type: String,
 		required: true,
-		unique: true,
-		validate:{
-			validator:(value)=>{
-				return validator.isEmail(value)
-			},
-			message:'{VALUE} is not a valid email'
-		}
 	},
 	password: String,
 	photo: String,
@@ -33,16 +26,12 @@ const userSchema = new Schema({
 userSchema.pre('save', function (next) {
 	let user = this;
 	if (user.isModified('password')) {
-		if (user.password) {
-			bcrypt.genSalt(20, (err, salt) => {
-				if (err) return next(err);
+			bcrypt.genSalt(10, (err, salt) => {
 				bcrypt.hash(user.password, salt, (err, hash) => {
-					if (err) return next(err);
 					user.password = hash;
 					next();
-				})
-			})
-		}
+				});
+			});
 	} else {
 		next();
 	}
@@ -55,7 +44,7 @@ userSchema.pre('save', function (next) {
 //the digest method returns a hexadecimal string of the hash object.
 //could also be latin1 as an alternative to hex
 
-userSchema.methods.createPhoto = function (size) {
+userSchema.methods.createPhoto =function (size) {
 	if (!size) return size = 200;
 	if (!this.email) return `https://gravatar.com/avatar/?s=${size}&d=retro`;
 	let md5 = crypto.create('md5').update(this.email).digest('hex');
@@ -63,20 +52,8 @@ userSchema.methods.createPhoto = function (size) {
 }
 
 // instance custom method 
-userSchema.statics.verifyPasswords = function (email, password) {
-	const User = this;
-	User.findOne({
-			email
-		})
-		.then(user => {
-			if (!user) return Promise.reject();
-			bcrypt.compare(password, user.password)
-				.then(res => {
-					if (!res) return Promise.reject();
-					return Promise.resolve(user);
-				})
-		}).catch(err => console.error(err));
-
+userSchema.methods.verifyPassword = function (password) {
+  return bcrypt.compare(password,this.password);
 }
 
 

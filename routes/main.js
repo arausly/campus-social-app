@@ -13,9 +13,7 @@ router.get('/create-new-user', (req, res, next) => {
 	});
 	user.save()
 		.then((user) => {
-             if(user){
 				 res.json('Sucessfully created');
-			 }
 		}).catch(err =>next(err));
 })
 
