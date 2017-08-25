@@ -19,6 +19,7 @@ passport.deserializeUser(function (id, done) {
 //login config
 //passReqToCallback is used to pass the request,
 //object to the localStrategy callback.
+//its the actual fields based on name in hbs/html
 
 passport.use('local-login', new localStrategy({
 		usernameField: 'email',
@@ -30,8 +31,8 @@ passport.use('local-login', new localStrategy({
 				email
 			})
 			.then(user => {
-				if (!user) return done(err, false, req.flash('loginMessage', 'User not found'));
-				if (!user.verifyPassword(password)) return req.flash('loginMessage', 'wrong password');
+				if (!user) return done(null, false, req.flash('loginMessage', 'User not found'));
+				if (!(user.verifyPassword(password))) return done(null,false,req.flash('loginMessage', 'wrong password'));
 				done(null, user);
 			}).catch(err => done(err))
 	}))

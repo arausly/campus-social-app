@@ -22,7 +22,10 @@ router.route('/signup')
 				})
 				newUser.photo = newUser.createPhoto();
 				newUser.save().then(user => {
-					res.redirect('/');
+					req.logIn(user, function (err) {
+						if (err) return next(err)
+						res.redirect('/')
+					})
 				}).catch(err => next(err))
 			} else {
 				req.flash('errors', 'Account with email already exist');
@@ -32,14 +35,21 @@ router.route('/signup')
 	})
 
 router.route('/login')
- .get((req,res,next)=>{
-	if(req.user) return res.redirect('/');
-	res.render('accounts/login',{message:req.flash('loginMessage')})
+	.get((req, res, next) => {
+		if (req.user) return res.redirect('/');
+		res.render('accounts/login',{
+			message: req.flash('loginMessage')
+		})
+	})
+	.post(passport.authenticate('local-login', {
+		successRedirect: '/',
+		failureRedirect: '/login',
+		failureFlash: true
+	}))
+
+router.get('/logout', (req, res, next) => {
+	req.logout();
+	res.redirect('/');
 })
-.post(passport.authenticate('local-login',{
-	successRedirect:'/',
-	failureRedirect:'/login',
-	failureFlash:true
-}))
 
 module.exports = router;
